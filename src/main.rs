@@ -103,15 +103,15 @@ fn split_on_direction(segments: Vec<Segment>) -> (Vec<Segment>, Vec<Segment>) {
 }
 
 fn cost_for_segment(p: Point, s: &Segment) -> i32 {
-    if s.end1.x == s.end2.x {
-        // vertical
+    if s.end1.x != s.end2.x {
+        // horizontal
         if s.mirrored {
             return s.steps + s.end2.x - p.x;
         } else {
             return s.steps + p.x - s.end1.x;
         }
     } else {
-        // horizontal
+        // vertical
         if s.mirrored {
             return s.steps + s.end2.y - p.y;
         } else {
@@ -158,16 +158,19 @@ fn intersects_vertical(segment: Segment, horizontals: &Vec<Segment>, verticals: 
             let top = min(segment.end2.y, other.end2.y);
             let point1 = Point { x: segment.end1.x, y: bottom };
             let point2 = Point { x: segment.end1.x, y: top };
-            println!("intersect: {},{} -> {} {}", segment, other, point1, point2);
-            intersects.push(PointWithCost { point: point1, cost: cost(point1, &segment, other) });
-            intersects.push(PointWithCost { point: point2, cost: cost(point2, &segment, other) });
+            println!("intersect: {},{} -> {} {} ", segment, other, point1, point2);
+            let cost1 = cost(point1, &segment, other);
+            let cost2 = cost(point2, &segment, other);
+            intersects.push(PointWithCost { point: point1, cost: cost1 });
+            intersects.push(PointWithCost { point: point2, cost: cost2 });
         }
     }
     for other in horizontals {
         if between(other.end1.y, segment.end1.y, segment.end2.y) {
             if between(segment.end1.x, other.end1.x, other.end2.x) {
                 let point = Point { x: segment.end1.x, y: other.end1.y };
-                intersects.push(PointWithCost { point, cost: cost(point, &segment, other) });
+                let cost1 = cost(point, &segment, other);
+                intersects.push(PointWithCost { point, cost: cost1 });
             }
         }
     }
